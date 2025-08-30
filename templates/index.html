@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>YouTube Downloader</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <div class="container">
+    <h1><span class="emoji">⚡</span> QuickSave 4K – YouTube & Reels Downloader</h1>
+    <p class="description">Convert & Download Videos in MP3 or MP4 Instantly for Free..</p>
+    
+    <form id="downloadForm">
+      <input type="text" id="videoURL" name="url" placeholder="Enter YouTube/Instagram URL" required>
+
+      <select name="type" id="fileType">
+        <option value="mp4">Video (MP4)</option>
+        <option value="mp3">Audio (MP3)</option>
+      </select>
+
+      <!-- ✅ Quality Dropdown -->
+      <select name="quality" id="quality">
+        <option value="highest">2160p</option>
+        <option value="360p">360p</option>
+        <option value="480p">480p</option>
+        <option value="720p">720p</option>
+        <option value="1080p">1080p</option>
+      </select>
+
+      <button type="submit">Download</button>
+    </form>
+
+    <!-- ✅ Thumbnail Preview -->
+    <div id="preview" style="margin-top:5px; display:none;">
+      <h3 id="videoTitle"></h3>
+      <img id="videoThumbnail" src="" alt="Thumbnail" style="max-width:80%; border-radius:30px; margin-top:5px;">
+    </div>
+
+    <!-- ✅ Progress Bar -->
+    <div id="progressContainer">
+      <div id="progressBar"></div>
+    </div>
+
+    <footer class="footer">
+      <p>
+        © 2025 <strong>QuickSave 4K</strong>. All rights reserved. <br>
+        Made With <span class="heart">❤️</span> by 
+        <a href="https://www.linkedin.com/in/shobhit78" target="_blank">Shobhit Kumar</a> 
+        | <a href="#">Share 🔗</a>
+      </p>
+    </footer>
+  </div>
+
+  <script src="{{ url_for('static', filename='Script.js') }}"></script>
+</body>
+</html>

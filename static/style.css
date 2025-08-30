@@ -1,0 +1,120 @@
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: linear-gradient(135deg, #0f0f0f, #1c1c1c); 
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  text-align: center;
+}
+
+.container {
+  background: #1a1a1a;
+  padding: 30px;
+  border-radius: 15px;
+  width: 75%;
+  max-width: 500px;
+  box-shadow: 0 8px 25px rgba(61, 60, 60, 0.301), 0 0 15px rgba(175, 174, 174, 0.2);
+}
+
+h1 {
+  /* margin-bottom: 30px;
+  margin-top: 5px; */
+  margin-bottom: 20px;
+  margin-top: -20px;
+}
+
+.description {
+  font-size: 15px;
+  margin-bottom: 20px;
+  color: #706c6c;
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.2); }
+  100% { transform: scale(1); }
+}
+
+h1 span.emoji {
+  display: inline-block;
+  animation: pulse 1.5s infinite; 
+}
+
+
+form {
+  display: flex;
+  gap: 20px;
+  flex-direction: column;
+}
+
+input, select, button {
+  padding: 10px;
+  border-radius: 8px;
+  border: none;
+  font-size: 16px;
+}
+
+button {
+  background: red;
+  color: white;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease; 
+}
+
+button:hover {
+  transform: scale(1.05);  
+  background: linear-gradient(45deg, #ff0000, #ff4444); 
+}
+
+
+
+#progressContainer {
+  margin-top: 15px;
+  background: #333;
+  border-radius: 10px;
+  height: 20px;
+  width: 100%;
+  overflow: hidden;
+}
+
+#progressBar {
+  height: 100%;
+  width: 0%;
+  background: green;
+  transition: width 0.2s;
+}
+
+.footer {
+  margin-top: 20px;
+  font-size: 14px;
+  color: #aaa;
+  text-align: center;
+}
+
+.footer a {
+  color: #ff4444;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.footer a:hover {
+  text-decoration: underline;
+}
+
+@keyframes heartbeat {
+  0% { transform: scale(1); }
+  25% { transform: scale(1.2); }
+  50% { transform: scale(1); }
+  75% { transform: scale(1.2); }
+  100% { transform: scale(1); }
+}
+
+.footer .heart {
+  display: inline-block;
+  color: red;
+  animation: heartbeat 1.3s infinite;
+}
