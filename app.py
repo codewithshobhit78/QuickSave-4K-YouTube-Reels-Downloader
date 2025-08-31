@@ -5,7 +5,9 @@ import uuid
 import threading
 
 app = Flask(__name__)
-DOWNLOAD_DIR = "downloads"
+
+# ✅ Railway /tmp directory (safe for ephemeral storage)
+DOWNLOAD_DIR = "/tmp"
 
 if not os.path.exists(DOWNLOAD_DIR):
     os.makedirs(DOWNLOAD_DIR)
@@ -117,16 +119,6 @@ def thumbnail():
         return jsonify({"error": str(e)}), 400
 
 
-# if __name__ == "__main__":
-#     app.run(debug=True)
-
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))  # Railway ke liye
     app.run(host="0.0.0.0", port=port)
-
-
-
-# # # to run app run commands below
-# # cd "/Users/shobhit/Downloads/QuickSave 4K – YouTube & Reels Downloader"
-# # source venv/bin/activate
-# # python3 app.py 
