@@ -17,6 +17,22 @@ last_files = {}
 def index():
     return render_template("index.html")
 
+# ✅ Thumbnail endpoint
+@app.route("/thumbnail", methods=["POST"])
+def thumbnail():
+    data = request.get_json()
+    url = data.get("url")
+    try:
+        with yt_dlp.YoutubeDL({}) as ydl:
+            info = ydl.extract_info(url, download=False)
+            return jsonify({
+                "thumbnail": info.get("thumbnail"),
+                "title": info.get("title")
+            })
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
+
+# ✅ Download video
 @app.route("/download", methods=["POST"])
 def download():
     try:
@@ -24,28 +40,25 @@ def download():
         file_type = request.form["type"]
         quality = request.form["quality"]
 
-        # Unique filename (to avoid overwriting)
         unique_id = str(uuid.uuid4())
         outtmpl = os.path.join(DOWNLOAD_DIR, f"{unique_id}.%(ext)s")
 
-        # ydl options
         ydl_opts = {
             "outtmpl": outtmpl,
-            "format": "bestvideo[height<=" + quality.replace("p", "") + "]+bestaudio/best"
+            "format": f"bestvideo[height<={quality.replace('p','')}]+bestaudio/best"
         }
 
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             info = ydl.extract_info(url, download=True)
             file_path = ydl.prepare_filename(info)
 
-        # Save file path in memory with unique_id
         last_files[unique_id] = file_path
-
         return jsonify({"status": "success", "file_id": unique_id})
 
     except Exception as e:
         return jsonify({"status": "error", "error": str(e)})
 
+# ✅ Serve file to user
 @app.route("/get_file/<file_id>")
 def get_file(file_id):
     try:
@@ -53,9 +66,11 @@ def get_file(file_id):
             file_path = last_files[file_id]
             if os.path.exists(file_path):
                 return send_file(file_path, as_attachment=True)
-        return jsonify({"status": "error", "error": "File not found on server!"}), 404
+        return jsonify({"status": "error", "error": "File not found!"}), 404
     except Exception as e:
         return jsonify({"status": "error", "error": str(e)}), 500
 
+# ✅ Run on Railway dynamic port
 if __name__ == "__main__":
-    app.run(debug=True)
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port)
