@@ -2,60 +2,110 @@ from flask import Flask, render_template, request, jsonify, send_file
 import yt_dlp
 import os
 import uuid
+import threading
 
 app = Flask(__name__)
 
-# Temporary download folder
-DOWNLOAD_DIR = os.path.join(os.getcwd(), "downloads")
+DOWNLOAD_DIR = "/tmp"
 if not os.path.exists(DOWNLOAD_DIR):
     os.makedirs(DOWNLOAD_DIR)
 
-# Store last downloaded file paths
-last_files = {}
+progress_data = {"progress": 0, "file": None, "status": "idle", "error": None}
 
-@app.route("/")
+def progress_hook(d):
+    global progress_data
+    if d['status'] == 'downloading':
+        percent = d.get('_percent_str', '0%').replace('%', '')
+        try:
+            progress_data["progress"] = float(percent)
+            progress_data["status"] = "downloading"
+        except:
+            progress_data["progress"] = 0
+    elif d['status'] == 'finished':
+        progress_data["progress"] = 100
+        progress_data["status"] = "finished"
+
+def download_worker(url, filetype, quality, filename):
+    global progress_data
+    filepath = os.path.join(DOWNLOAD_DIR, filename)
+
+    ydl_opts = {
+        'progress_hooks': [progress_hook],
+        'outtmpl': filepath,
+    }
+
+    if filetype == "mp4":
+        if quality == "highest":
+            ydl_opts['format'] = "bestvideo[ext=mp4]+bestaudio[ext=m4a]/best"
+        else:
+            ydl_opts['format'] = f"bestvideo[height<={quality.replace('p','')}][ext=mp4]+bestaudio[ext=m4a]/best"
+        ydl_opts['merge_output_format'] = "mp4"
+    else:  # mp3
+        ydl_opts['format'] = "bestaudio/best"
+        ydl_opts['postprocessors'] = [{
+            'key': 'FFmpegExtractAudio',
+            'preferredcodec': 'mp3',
+            'preferredquality': '192',
+        }]
+
+    try:
+        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+            ydl.download([url])
+
+        # verify downloaded file
+        for file in os.listdir(DOWNLOAD_DIR):
+            if filename.split(".")[0] in file:
+                progress_data["file"] = os.path.join(DOWNLOAD_DIR, file)
+                break
+
+    except Exception as e:
+        progress_data["status"] = "error"
+        progress_data["error"] = str(e)
+
+@app.route('/')
 def index():
     return render_template("index.html")
 
-@app.route("/download", methods=["POST"])
+@app.route('/download', methods=['POST'])
 def download():
+    global progress_data
+    url = request.form.get("url")
+    filetype = request.form.get("type", "mp4")
+    quality = request.form.get("quality", "highest")
+
+    if not url:
+        return jsonify({"error": "No URL provided"}), 400
+
+    # reset progress
+    ext = "mp4" if filetype == "mp4" else "mp3"
+    filename = str(uuid.uuid4()) + f".{ext}"
+    progress_data = {"progress": 0, "file": None, "status": "starting", "error": None}
+
+    t = threading.Thread(target=download_worker, args=(url, filetype, quality, filename))
+    t.start()
+
+    return jsonify({"message": "Download started"})
+
+@app.route('/progress')
+def progress():
+    return jsonify(progress_data)
+
+@app.route('/get_file')
+def get_file():
+    if progress_data.get("file") and os.path.exists(progress_data["file"]):
+        return send_file(progress_data["file"], as_attachment=True)
+    return jsonify({"error": "File not ready"}), 404
+
+@app.route('/thumbnail', methods=['POST'])
+def thumbnail():
+    url = request.json.get("url")
     try:
-        url = request.form["url"]
-        file_type = request.form["type"]
-        quality = request.form["quality"]
-
-        # Unique filename (to avoid overwriting)
-        unique_id = str(uuid.uuid4())
-        outtmpl = os.path.join(DOWNLOAD_DIR, f"{unique_id}.%(ext)s")
-
-        # ydl options
-        ydl_opts = {
-            "outtmpl": outtmpl,
-            "format": "bestvideo[height<=" + quality.replace("p", "") + "]+bestaudio/best"
-        }
-
-        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-            info = ydl.extract_info(url, download=True)
-            file_path = ydl.prepare_filename(info)
-
-        # Save file path in memory with unique_id
-        last_files[unique_id] = file_path
-
-        return jsonify({"status": "success", "file_id": unique_id})
-
+        with yt_dlp.YoutubeDL({'quiet': True}) as ydl:
+            info = ydl.extract_info(url, download=False)
+            return jsonify({"thumbnail": info.get("thumbnail", ""), "title": info.get("title", "Video")})
     except Exception as e:
-        return jsonify({"status": "error", "error": str(e)})
-
-@app.route("/get_file/<file_id>")
-def get_file(file_id):
-    try:
-        if file_id in last_files:
-            file_path = last_files[file_id]
-            if os.path.exists(file_path):
-                return send_file(file_path, as_attachment=True)
-        return jsonify({"status": "error", "error": "File not found on server!"}), 404
-    except Exception as e:
-        return jsonify({"status": "error", "error": str(e)}), 500
+        return jsonify({"error": str(e)}), 400
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port)
