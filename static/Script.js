@@ -3,7 +3,6 @@ const preview = document.getElementById("preview");
 const thumbnailImg = document.getElementById("videoThumbnail");
 const videoTitle = document.getElementById("videoTitle");
 
-// ✅ URL paste hone par thumbnail fetch
 urlInput.addEventListener("change", async function () {
     const url = urlInput.value.trim();
     if (!url) return;
@@ -38,7 +37,6 @@ document.getElementById("downloadForm").addEventListener("submit", async functio
     let interval;
 
     try {
-        // Start polling progress
         interval = setInterval(async () => {
             const res = await fetch("/progress");
             const data = await res.json();
@@ -53,7 +51,8 @@ document.getElementById("downloadForm").addEventListener("submit", async functio
                 progressBar.style.background = "limegreen";
             }
 
-            if (data.progress >= 100 && data.status === "finished") {
+            // ✅ Only trigger download if file exists
+            if (data.progress >= 100 && data.status === "finished" && data.file) {
                 clearInterval(interval);
                 const resp = await fetch("/get_file");
                 if (resp.ok) {
@@ -61,7 +60,6 @@ document.getElementById("downloadForm").addEventListener("submit", async functio
                     const link = document.createElement("a");
                     link.href = window.URL.createObjectURL(blob);
 
-                    // ✅ backend se filename bhejna zaroori hai (Content-Disposition header)
                     const disposition = resp.headers.get("Content-Disposition");
                     let fileName = "downloaded_file";
                     if (disposition && disposition.includes("filename=")) {
@@ -81,7 +79,6 @@ document.getElementById("downloadForm").addEventListener("submit", async functio
             }
         }, 1000);
 
-        // Start download request
         const resp = await fetch("/download", { method: "POST", body: formData });
         if (!resp.ok) {
             clearInterval(interval);
