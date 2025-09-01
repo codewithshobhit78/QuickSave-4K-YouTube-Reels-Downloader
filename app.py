@@ -10,7 +10,9 @@ DOWNLOAD_DIR = "downloads"
 if not os.path.exists(DOWNLOAD_DIR):
     os.makedirs(DOWNLOAD_DIR)
 
+# ✅ Global progress
 progress_data = {"progress": 0, "file": None, "status": "idle"}
+
 
 def progress_hook(d):
     global progress_data
@@ -25,7 +27,9 @@ def progress_hook(d):
         progress_data["progress"] = 100
         progress_data["status"] = "finished"
 
+
 def download_worker(url, filetype, quality, filename):
+    """Worker thread for downloading video/audio"""
     global progress_data
     filepath = os.path.join(DOWNLOAD_DIR, filename)
 
@@ -48,26 +52,24 @@ def download_worker(url, filetype, quality, filename):
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             ydl.download([url])
 
-        # ✅ Correct downloaded file path
+        # find actual downloaded file
         downloaded_file = None
         for file in os.listdir(DOWNLOAD_DIR):
             if filename.split(".")[0] in file:
                 downloaded_file = os.path.join(DOWNLOAD_DIR, file)
                 break
 
-        if downloaded_file and os.path.exists(downloaded_file):
-            progress_data["file"] = downloaded_file
-        else:
-            progress_data["status"] = "error"
-            progress_data["error"] = "Downloaded file not found"
+        progress_data["file"] = downloaded_file
 
     except Exception as e:
         progress_data["status"] = "error"
         progress_data["error"] = str(e)
 
+
 @app.route('/')
 def index():
     return render_template("index.html")
+
 
 @app.route('/download', methods=['POST'])
 def download():
@@ -79,22 +81,30 @@ def download():
     if not url:
         return jsonify({"error": "No URL provided"}), 400
 
+    # reset progress
     progress_data = {"progress": 0, "file": None, "status": "starting"}
+
+    # unique filename
     filename = str(uuid.uuid4()) + ".%(ext)s"
+
+    # background thread
     t = threading.Thread(target=download_worker, args=(url, filetype, quality, filename))
     t.start()
 
     return jsonify({"message": "Download started"})
 
+
 @app.route('/progress')
 def progress():
     return jsonify(progress_data)
+
 
 @app.route('/get_file')
 def get_file():
     if progress_data.get("file") and os.path.exists(progress_data["file"]):
         return send_file(progress_data["file"], as_attachment=True)
     return jsonify({"error": "File not ready"}), 404
+
 
 @app.route('/thumbnail', methods=['POST'])
 def thumbnail():
@@ -106,6 +116,17 @@ def thumbnail():
     except Exception as e:
         return jsonify({"error": str(e)}), 400
 
+
+# if __name__ == "__main__":
+#     app.run(debug=True)
+
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 5000))
+    port = int(os.environ.get("PORT", 5000))  # Railway ke liye
     app.run(host="0.0.0.0", port=port)
+
+
+
+# # # to run app run commands below
+# # cd "/Users/shobhit/Downloads/QuickSave 4K – YouTube & Reels Downloader"
+# # source venv/bin/activate
+# # python3 app.py 
