@@ -117,6 +117,17 @@ def thumbnail():
         return jsonify({"error": str(e)}), 400
 
 
+# ✅ Added Privacy Policy page
+@app.route("/privacy")
+def privacy():
+    return render_template("privacy.html")
+
+# ✅ Added Terms & Conditions page
+@app.route("/terms")
+def terms():
+    return render_template("terms.html")
+
+
 # if __name__ == "__main__":
 #     app.run(debug=True)
 
