@@ -3,7 +3,7 @@ const preview = document.getElementById("preview");
 const thumbnailImg = document.getElementById("videoThumbnail");
 const videoTitle = document.getElementById("videoTitle");
 
-// ✅ URL paste hone par thumbnail fetch
+// URL paste hone par thumbnail fetch
 urlInput.addEventListener("change", async function () {
     const url = urlInput.value.trim();
     if (!url) return;
@@ -20,6 +20,9 @@ urlInput.addEventListener("change", async function () {
             thumbnailImg.src = data.thumbnail;
             videoTitle.textContent = data.title;
             preview.style.display = "block";
+
+            // ✅ Scroll smoothly to the preview section
+            preview.scrollIntoView({ behavior: "smooth", block: "start" });
         }
     } catch (err) {
         console.error("Thumbnail fetch error:", err);
@@ -61,7 +64,7 @@ document.getElementById("downloadForm").addEventListener("submit", async functio
                     const link = document.createElement("a");
                     link.href = window.URL.createObjectURL(blob);
 
-                    // ✅ backend se filename bhejna zaroori hai (Content-Disposition header)
+                    // backend se filename bhejna zaroori hai
                     const disposition = resp.headers.get("Content-Disposition");
                     let fileName = "downloaded_file";
                     if (disposition && disposition.includes("filename=")) {
