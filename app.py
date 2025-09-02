@@ -38,7 +38,7 @@ def download_worker(url, filetype, quality, filename):
         'outtmpl': filepath,
     }
 
-        # ✅ Add cookies.txt if available
+    # ✅ Add cookies.txt if available
     cookies_path = os.path.join(os.getcwd(), "cookies.txt")
     if os.path.exists(cookies_path):
         ydl_opts["cookies"] = cookies_path
@@ -68,7 +68,12 @@ def download_worker(url, filetype, quality, filename):
 
     except Exception as e:
         progress_data["status"] = "error"
-        progress_data["error"] = str(e)
+
+        # ✅ 4K-specific error message
+        if quality == "2160p" or quality == "4k":
+            progress_data["error"] = "4K download failed, try 1080p or highest available!"
+        else:
+            progress_data["error"] = str(e)
 
 
 @app.route('/')

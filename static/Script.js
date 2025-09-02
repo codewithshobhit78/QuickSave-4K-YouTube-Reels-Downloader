@@ -2,6 +2,7 @@ const urlInput = document.getElementById("videoURL");
 const preview = document.getElementById("preview");
 const thumbnailImg = document.getElementById("videoThumbnail");
 const videoTitle = document.getElementById("videoTitle");
+const warningMsg = document.getElementById("warningMsg"); // ✅ warning div
 
 // URL paste hone par thumbnail fetch
 urlInput.addEventListener("change", async function () {
@@ -37,6 +38,7 @@ document.getElementById("downloadForm").addEventListener("submit", async functio
     const progressBar = document.getElementById("progressBar");
     progressBar.style.width = "0%";
     progressBar.style.background = "orange";
+    warningMsg.style.display = "none"; // ✅ Reset warning
 
     let interval;
 
@@ -56,6 +58,7 @@ document.getElementById("downloadForm").addEventListener("submit", async functio
                 progressBar.style.background = "limegreen";
             }
 
+            // ✅ Check for finished download
             if (data.progress >= 100 && data.status === "finished") {
                 clearInterval(interval);
                 const resp = await fetch("/get_file");
@@ -64,7 +67,6 @@ document.getElementById("downloadForm").addEventListener("submit", async functio
                     const link = document.createElement("a");
                     link.href = window.URL.createObjectURL(blob);
 
-                    // backend se filename bhejna zaroori hai
                     const disposition = resp.headers.get("Content-Disposition");
                     let fileName = "downloaded_file";
                     if (disposition && disposition.includes("filename=")) {
@@ -74,13 +76,15 @@ document.getElementById("downloadForm").addEventListener("submit", async functio
                     link.download = fileName;
                     link.click();
                 } else {
-                    alert("⚠️ File not found on server!");
+                    warningMsg.textContent = "⚠️ File not found on server! 4K may not be available for this video.";
+                    warningMsg.style.display = "block";
                 }
             }
 
             if (data.status === "error") {
                 clearInterval(interval);
-                alert("⚠️ Error: " + (data.error || "Something went wrong!"));
+                warningMsg.textContent = "⚠️ Error: " + (data.error || "Something went wrong!");
+                warningMsg.style.display = "block";
             }
         }, 1000);
 
@@ -88,11 +92,13 @@ document.getElementById("downloadForm").addEventListener("submit", async functio
         const resp = await fetch("/download", { method: "POST", body: formData });
         if (!resp.ok) {
             clearInterval(interval);
-            alert("⚠️ Failed to start download!");
+            warningMsg.textContent = "⚠️ Failed to start download!";
+            warningMsg.style.display = "block";
         }
     } catch (err) {
         clearInterval(interval);
         console.error("Download error:", err);
-        alert("⚠️ Something went wrong while downloading!");
+        warningMsg.textContent = "⚠️ Something went wrong while downloading!";
+        warningMsg.style.display = "block";
     }
 });
