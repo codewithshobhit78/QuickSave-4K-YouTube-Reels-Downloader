@@ -102,7 +102,15 @@ def progress():
 @app.route('/get_file')
 def get_file():
     if progress_data.get("file") and os.path.exists(progress_data["file"]):
-        return send_file(progress_data["file"], as_attachment=True)
+        # ✅ Cleanup logic added here
+        filepath = progress_data["file"]
+        response = send_file(filepath, as_attachment=True)
+        try:
+            os.remove(filepath)  # Delete after sending
+            print(f"✅ Deleted temp file: {filepath}")
+        except Exception as e:
+            print(f"⚠️ Cleanup failed: {e}")
+        return response
     return jsonify({"error": "File not ready"}), 404
 
 
@@ -128,16 +136,6 @@ def terms():
     return render_template("terms.html")
 
 
-# if __name__ == "__main__":
-#     app.run(debug=True)
-
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))  # Railway ke liye
     app.run(host="0.0.0.0", port=port)
-
-
-
-# # # to run app run commands below
-# # cd "/Users/shobhit/Downloads/QuickSave 4K – YouTube & Reels Downloader"
-# # source venv/bin/activate
-# # python3 app.py 
