@@ -38,6 +38,11 @@ def download_worker(url, filetype, quality, filename):
         'outtmpl': filepath,
     }
 
+        # ✅ Add cookies.txt if available
+    cookies_path = os.path.join(os.getcwd(), "cookies.txt")
+    if os.path.exists(cookies_path):
+        ydl_opts["cookies"] = cookies_path
+
     if filetype == "mp4":
         if quality == "highest":
             ydl_opts['format'] = "bestvideo[ext=mp4]+bestaudio[ext=m4a]/best"
