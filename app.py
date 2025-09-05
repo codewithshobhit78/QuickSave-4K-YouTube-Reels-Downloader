@@ -133,12 +133,29 @@ def get_file():
 @app.route('/thumbnail', methods=['POST'])
 def thumbnail():
     url = request.json.get("url")
+
+    # ✅ Add cookies (Railway env var OR local file)
+    cookies_env = os.environ.get("COOKIES")
+    cookies_path = os.path.join(os.getcwd(), "cookies.txt")
+
+    ydl_opts = {'quiet': True}
+    if cookies_env:
+        with open(cookies_path, "w") as f:
+            f.write(cookies_env)
+        ydl_opts["cookiefile"] = cookies_path
+    elif os.path.exists(cookies_path):
+        ydl_opts["cookiefile"] = cookies_path
+
     try:
-        with yt_dlp.YoutubeDL({'quiet': True}) as ydl:
+        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             info = ydl.extract_info(url, download=False)
-            return jsonify({"thumbnail": info.get("thumbnail", ""), "title": info.get("title", "Video")})
+            return jsonify({
+                "thumbnail": info.get("thumbnail", ""),
+                "title": info.get("title", "Video")
+            })
     except Exception as e:
         return jsonify({"error": str(e)}), 400
+
 
 
 # ✅ Added Privacy Policy page
