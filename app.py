@@ -11,7 +11,7 @@ if not os.path.exists(DOWNLOAD_DIR):
     os.makedirs(DOWNLOAD_DIR)
 
 # ✅ Global progress
-progress_data = {"progress": 0, "file": None, "status": "idle", "error": None}
+progress_data = {"progress": 0, "file": None, "status": "idle"}
 
 
 def progress_hook(d):
@@ -38,18 +38,17 @@ def download_worker(url, filetype, quality, filename):
         'outtmpl': filepath,
     }
 
-    # ✅ Add cookies (Railway env var OR local file)
-    cookies_env = os.environ.get("COOKIES")
+       # ✅ Add cookies (Railway env var OR local file)
+    cookies_env = os.environ.get("COOKIES")   # ✅ (New)
     cookies_path = os.path.join(os.getcwd(), "cookies.txt")
 
-    if cookies_env:   # ✅ Write cookies if env var exists
+    if cookies_env:   # ✅ (New)
         with open(cookies_path, "w") as f:
             f.write(cookies_env)
         ydl_opts["cookiefile"] = cookies_path
-    elif os.path.exists(cookies_path):   # ✅ Use local cookies.txt if exists
+    elif os.path.exists(cookies_path):   # ✅ (New)
         ydl_opts["cookiefile"] = cookies_path
 
-    # ✅ Set format based on type/quality
     if filetype == "mp4":
         if quality == "highest":
             ydl_opts['format'] = "bestvideo[ext=mp4]+bestaudio[ext=m4a]/best"
@@ -64,7 +63,7 @@ def download_worker(url, filetype, quality, filename):
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             ydl.download([url])
 
-        # ✅ Find actual downloaded file
+        # find actual downloaded file
         downloaded_file = None
         for file in os.listdir(DOWNLOAD_DIR):
             if filename.split(".")[0] in file:
@@ -75,7 +74,9 @@ def download_worker(url, filetype, quality, filename):
 
     except Exception as e:
         progress_data["status"] = "error"
-        if quality in ["2160p", "4k"]:
+
+        # ✅ 4K-specific error message
+        if quality == "2160p" or quality == "4k":
             progress_data["error"] = "4K download failed, try 1080p or highest available!"
         else:
             progress_data["error"] = str(e)
@@ -96,13 +97,13 @@ def download():
     if not url:
         return jsonify({"error": "No URL provided"}), 400
 
-    # ✅ Reset progress
-    progress_data = {"progress": 0, "file": None, "status": "starting", "error": None}
+    # reset progress
+    progress_data = {"progress": 0, "file": None, "status": "starting"}
 
-    # ✅ Unique filename
+    # unique filename
     filename = str(uuid.uuid4()) + ".%(ext)s"
 
-    # ✅ Background thread for download
+    # background thread
     t = threading.Thread(target=download_worker, args=(url, filetype, quality, filename))
     t.start()
 
@@ -117,10 +118,11 @@ def progress():
 @app.route('/get_file')
 def get_file():
     if progress_data.get("file") and os.path.exists(progress_data["file"]):
+        # ✅ Cleanup logic added here
         filepath = progress_data["file"]
         response = send_file(filepath, as_attachment=True)
         try:
-            os.remove(filepath)  # ✅ Delete temp file after sending
+            os.remove(filepath)  # Delete after sending
             print(f"✅ Deleted temp file: {filepath}")
         except Exception as e:
             print(f"⚠️ Cleanup failed: {e}")
@@ -130,19 +132,13 @@ def get_file():
 
 @app.route('/thumbnail', methods=['POST'])
 def thumbnail():
-    # ✅ Extract URL safely and strip spaces
-    url = request.json.get("url", "").strip()
-    if not url:
-        return jsonify({"error": "No URL provided"}), 400
+    url = request.json.get("url")
 
+    # ✅ Add cookies (Railway env var OR local file)
     cookies_env = os.environ.get("COOKIES")
     cookies_path = os.path.join(os.getcwd(), "cookies.txt")
 
-    # ✅ yt-dlp options
-    ydl_opts = {
-        'quiet': True,
-        'ignoreerrors': True,  # ✅ Avoid crashing if private video or extraction fails
-    }
+    ydl_opts = {'quiet': True}
     if cookies_env:
         with open(cookies_path, "w") as f:
             f.write(cookies_env)
@@ -153,26 +149,26 @@ def thumbnail():
     try:
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             info = ydl.extract_info(url, download=False)
-            if info is None:
-                return jsonify({"error": "Failed to extract video info"}), 400
-            thumbnail = info.get("thumbnail")
-            title = info.get("title", "Video")
-            return jsonify({"thumbnail": thumbnail, "title": title})
+            return jsonify({
+                "thumbnail": info.get("thumbnail", ""),
+                "title": info.get("title", "Video")
+            })
     except Exception as e:
         return jsonify({"error": str(e)}), 400
 
 
-# ✅ Privacy Policy page
+
+# ✅ Added Privacy Policy page
 @app.route("/privacy")
 def privacy():
     return render_template("privacy.html")
 
-# ✅ Terms & Conditions page
+# ✅ Added Terms & Conditions page
 @app.route("/terms")
 def terms():
     return render_template("terms.html")
 
 
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 5000))  # ✅ Railway port
+    port = int(os.environ.get("PORT", 5000))  # Railway ke liye
     app.run(host="0.0.0.0", port=port)

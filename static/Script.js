@@ -7,7 +7,7 @@ const warningMsg = document.getElementById("warningMsg"); // ✅ warning div
 // URL paste hone par thumbnail fetch
 urlInput.addEventListener("change", async function () {
     const url = urlInput.value.trim();
-    if (!url) return; // ✅ Empty URL check
+    if (!url) return;
 
     try {
         const res = await fetch("/thumbnail", {
@@ -17,21 +17,17 @@ urlInput.addEventListener("change", async function () {
         });
         const data = await res.json();
 
-        if (data.thumbnail) { // ✅ Check if thumbnail exists
+        if (data.thumbnail) {
             thumbnailImg.src = data.thumbnail;
             videoTitle.textContent = data.title;
             preview.style.display = "block";
 
             // ✅ Scroll smoothly to the preview section
             preview.scrollIntoView({ behavior: "smooth", block: "start" });
-        } else if (data.error) { 
-            warningMsg.textContent = "⚠️ " + data.error;
-            warningMsg.style.display = "block";
         }
     } catch (err) {
         console.error("Thumbnail fetch error:", err);
-        warningMsg.textContent = "⚠️ Failed to load video info!";
-        warningMsg.style.display = "block";
+        alert("⚠️ Failed to load video info!");
     }
 });
 
