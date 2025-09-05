@@ -18,3 +18,15 @@ dist/
 *.egg-info/
 
 cookies.txt
+
+
+
+# @app.route('/thumbnail', methods=['POST'])
+# def thumbnail():
+#     url = request.json.get("url")
+#     try:
+#         with yt_dlp.YoutubeDL({'quiet': True}) as ydl:
+#             info = ydl.extract_info(url, download=False)
+#             return jsonify({"thumbnail": info.get("thumbnail", ""), "title": info.get("title", "Video")})
+#     except Exception as e:
+#         return jsonify({"error": str(e)}), 400 
