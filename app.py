@@ -38,11 +38,16 @@ def download_worker(url, filetype, quality, filename):
         'outtmpl': filepath,
     }
 
-    # ✅ Add cookies.txt if available
+       # ✅ Add cookies (Railway env var OR local file)
+    cookies_env = os.environ.get("COOKIES")   # ✅ (New)
     cookies_path = os.path.join(os.getcwd(), "cookies.txt")
-    if os.path.exists(cookies_path):
-        ydl_opts["cookiefile"] = cookies_path
 
+    if cookies_env:   # ✅ (New)
+        with open(cookies_path, "w") as f:
+            f.write(cookies_env)
+        ydl_opts["cookiefile"] = cookies_path
+    elif os.path.exists(cookies_path):   # ✅ (New)
+        ydl_opts["cookiefile"] = cookies_path
 
     if filetype == "mp4":
         if quality == "highest":
