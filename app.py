@@ -28,6 +28,23 @@ def progress_hook(d):
         progress_data["status"] = "finished"
 
 
+# ✅ Clean cookies before use
+def clean_cookies(cookies_path):
+    """Remove invalid/garbled cookie lines (Railway में error रोकने के लिए)"""
+    try:
+        if os.path.exists(cookies_path):
+            cleaned_lines = []
+            with open(cookies_path, "r", encoding="utf-8", errors="ignore") as f:
+                for line in f:
+                    if line.strip() and not line.startswith(".smartadserver.com"):
+                        cleaned_lines.append(line)
+            with open(cookies_path, "w", encoding="utf-8") as f:
+                f.writelines(cleaned_lines)
+            print("✅ Cookies cleaned successfully")
+    except Exception as e:
+        print(f"⚠️ Cookie cleanup failed: {e}")
+
+
 def download_worker(url, filetype, quality, filename):
     """Worker thread for downloading video/audio"""
     global progress_data
@@ -38,15 +55,17 @@ def download_worker(url, filetype, quality, filename):
         'outtmpl': filepath,
     }
 
-       # ✅ Add cookies (Railway env var OR local file)
-    cookies_env = os.environ.get("COOKIES")   # ✅ (New)
+    # ✅ Add cookies (Railway env var OR local file)
+    cookies_env = os.environ.get("COOKIES")
     cookies_path = os.path.join(os.getcwd(), "cookies.txt")
 
-    if cookies_env:   # ✅ (New)
+    if cookies_env:
         with open(cookies_path, "w") as f:
             f.write(cookies_env)
+        clean_cookies(cookies_path)   # ✅ Clean after writing
         ydl_opts["cookiefile"] = cookies_path
-    elif os.path.exists(cookies_path):   # ✅ (New)
+    elif os.path.exists(cookies_path):
+        clean_cookies(cookies_path)   # ✅ Clean local file
         ydl_opts["cookiefile"] = cookies_path
 
     if filetype == "mp4":
@@ -142,8 +161,10 @@ def thumbnail():
     if cookies_env:
         with open(cookies_path, "w") as f:
             f.write(cookies_env)
+        clean_cookies(cookies_path)   # ✅ Clean before use
         ydl_opts["cookiefile"] = cookies_path
     elif os.path.exists(cookies_path):
+        clean_cookies(cookies_path)   # ✅ Clean before use
         ydl_opts["cookiefile"] = cookies_path
 
     try:
@@ -155,7 +176,6 @@ def thumbnail():
             })
     except Exception as e:
         return jsonify({"error": str(e)}), 400
-
 
 
 # ✅ Added Privacy Policy page
