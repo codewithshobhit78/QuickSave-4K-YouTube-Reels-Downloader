@@ -3,6 +3,7 @@ import yt_dlp
 import os
 import uuid
 import threading
+import clean_cookies   # ✅ new import
 
 app = Flask(__name__)
 DOWNLOAD_DIR = "downloads"
@@ -28,23 +29,6 @@ def progress_hook(d):
         progress_data["status"] = "finished"
 
 
-# ✅ Clean cookies before use
-def clean_cookies(cookies_path):
-    """Remove invalid/garbled cookie lines (Railway में error रोकने के लिए)"""
-    try:
-        if os.path.exists(cookies_path):
-            cleaned_lines = []
-            with open(cookies_path, "r", encoding="utf-8", errors="ignore") as f:
-                for line in f:
-                    if line.strip() and not line.startswith(".smartadserver.com"):
-                        cleaned_lines.append(line)
-            with open(cookies_path, "w", encoding="utf-8") as f:
-                f.writelines(cleaned_lines)
-            print("✅ Cookies cleaned successfully")
-    except Exception as e:
-        print(f"⚠️ Cookie cleanup failed: {e}")
-
-
 def download_worker(url, filetype, quality, filename):
     """Worker thread for downloading video/audio"""
     global progress_data
@@ -55,18 +39,19 @@ def download_worker(url, filetype, quality, filename):
         'outtmpl': filepath,
     }
 
-    # ✅ Add cookies (Railway env var OR local file)
+    # ✅ Auto clean cookies (Railway env var OR local file)
     cookies_env = os.environ.get("COOKIES")
     cookies_path = os.path.join(os.getcwd(), "cookies.txt")
+    clean_path = os.path.join(os.getcwd(), "cookies_clean.txt")
 
     if cookies_env:
-        with open(cookies_path, "w") as f:
+        with open(cookies_path, "w", encoding="utf-8") as f:
             f.write(cookies_env)
-        clean_cookies(cookies_path)   # ✅ Clean after writing
-        ydl_opts["cookiefile"] = cookies_path
+        clean_cookies.clean_cookies(cookies_path, clean_path)
+        ydl_opts["cookiefile"] = clean_path
     elif os.path.exists(cookies_path):
-        clean_cookies(cookies_path)   # ✅ Clean local file
-        ydl_opts["cookiefile"] = cookies_path
+        clean_cookies.clean_cookies(cookies_path, clean_path)
+        ydl_opts["cookiefile"] = clean_path
 
     if filetype == "mp4":
         if quality == "highest":
@@ -153,19 +138,20 @@ def get_file():
 def thumbnail():
     url = request.json.get("url")
 
-    # ✅ Add cookies (Railway env var OR local file)
+    # ✅ Auto clean cookies for thumbnail too
     cookies_env = os.environ.get("COOKIES")
     cookies_path = os.path.join(os.getcwd(), "cookies.txt")
+    clean_path = os.path.join(os.getcwd(), "cookies_clean.txt")
 
     ydl_opts = {'quiet': True}
     if cookies_env:
-        with open(cookies_path, "w") as f:
+        with open(cookies_path, "w", encoding="utf-8") as f:
             f.write(cookies_env)
-        clean_cookies(cookies_path)   # ✅ Clean before use
-        ydl_opts["cookiefile"] = cookies_path
+        clean_cookies.clean_cookies(cookies_path, clean_path)
+        ydl_opts["cookiefile"] = clean_path
     elif os.path.exists(cookies_path):
-        clean_cookies(cookies_path)   # ✅ Clean before use
-        ydl_opts["cookiefile"] = cookies_path
+        clean_cookies.clean_cookies(cookies_path, clean_path)
+        ydl_opts["cookiefile"] = clean_path
 
     try:
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
