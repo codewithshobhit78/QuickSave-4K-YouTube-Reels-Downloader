@@ -53,10 +53,9 @@ def download_worker(url, filetype, quality, filename):
         clean_cookies.clean_cookies(cookies_path, clean_path)
         ydl_opts["cookiefile"] = clean_path
 
-    # ✅ Limit max YouTube quality to 1080p
     if filetype == "mp4":
         if quality == "highest":
-            ydl_opts['format'] = "bestvideo[height<=1080][ext=mp4]+bestaudio[ext=m4a]/best"  # ✅ changed
+            ydl_opts['format'] = "bestvideo[ext=mp4]+bestaudio[ext=m4a]/best"
         else:
             ydl_opts['format'] = f"bestvideo[height<={quality.replace('p','')}][ext=mp4]+bestaudio[ext=m4a]/best"
         ydl_opts['merge_output_format'] = "mp4"
@@ -79,7 +78,12 @@ def download_worker(url, filetype, quality, filename):
 
     except Exception as e:
         progress_data["status"] = "error"
-        progress_data["error"] = str(e)
+
+        # ✅ 4K-specific error message
+        if quality == "2160p" or quality == "4k":
+            progress_data["error"] = "4K download failed, try 1080p or highest available!"
+        else:
+            progress_data["error"] = str(e)
 
 
 @app.route('/')
@@ -152,20 +156,10 @@ def thumbnail():
     try:
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             info = ydl.extract_info(url, download=False)
-
-            # ✅ Instagram reels special handling
-            if "instagram.com" in url:
-                return jsonify({
-                    "thumbnail": info.get("thumbnail", info.get("thumbnails", [{}])[0].get("url", "")),
-                    "title": info.get("title", "Instagram Reel")
-                })
-
-            # ✅ Default (YouTube + others)
             return jsonify({
                 "thumbnail": info.get("thumbnail", ""),
                 "title": info.get("title", "Video")
             })
-
     except Exception as e:
         return jsonify({"error": str(e)}), 400
 
