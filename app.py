@@ -174,6 +174,10 @@ def privacy():
 def terms():
     return render_template("terms.html")
 
+# ✅ Added Disclaimer page
+@app.route("/disclaimer")
+def disclaimer():
+    return render_template("disclaimer.html")
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))  # Railway ke liye
