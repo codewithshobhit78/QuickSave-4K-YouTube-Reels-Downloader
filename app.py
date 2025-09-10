@@ -55,13 +55,12 @@ def download_worker(url, filetype, quality, filename):
 
     # ✅ Video/audio format logic (fixed for 1080p/4K)
     if filetype == "mp4":
-        # Use adaptive streams, auto fallback, merge to mp4
-        if quality.lower() in ["highest", "1080p", "720p", "480p", "360p"]:
+        if quality.lower() == "highest":
+            ydl_opts['format'] = "bestvideo+bestaudio/best"
+        else:
             ydl_opts['format'] = (
                 f"(bestvideo[height<={quality.replace('p','')}]+bestaudio)/bestvideo+bestaudio/best"
             )
-        else:
-            ydl_opts['format'] = "bestvideo+bestaudio/best"
         ydl_opts['merge_output_format'] = "mp4"
     else:
         # audio only
