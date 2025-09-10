@@ -53,13 +53,18 @@ def download_worker(url, filetype, quality, filename):
         clean_cookies.clean_cookies(cookies_path, clean_path)
         ydl_opts["cookiefile"] = clean_path
 
+    # ✅ Video/audio format logic (fixed for 1080p/4K)
     if filetype == "mp4":
-        if quality == "highest":
-            ydl_opts['format'] = "bestvideo[ext=mp4]+bestaudio[ext=m4a]/best"
+        # Use adaptive streams, auto fallback, merge to mp4
+        if quality.lower() in ["highest", "1080p", "720p", "480p", "360p"]:
+            ydl_opts['format'] = (
+                f"(bestvideo[height<={quality.replace('p','')}]+bestaudio)/bestvideo+bestaudio/best"
+            )
         else:
-            ydl_opts['format'] = f"bestvideo[height<={quality.replace('p','')}][ext=mp4]+bestaudio[ext=m4a]/best"
+            ydl_opts['format'] = "bestvideo+bestaudio/best"
         ydl_opts['merge_output_format'] = "mp4"
     else:
+        # audio only
         ydl_opts['format'] = "bestaudio[ext=m4a]/bestaudio"
         ydl_opts['merge_output_format'] = "mp3"
 
@@ -80,7 +85,7 @@ def download_worker(url, filetype, quality, filename):
         progress_data["status"] = "error"
 
         # ✅ 4K-specific error message
-        if quality == "2160p" or quality == "4k":
+        if quality.lower() in ["2160p", "4k"]:
             progress_data["error"] = "4K download failed, try 1080p or highest available!"
         else:
             progress_data["error"] = str(e)
