@@ -6,24 +6,37 @@
   <title>YouTube Downloader</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
   <link rel="icon" href="/favicon.ico" type="image/x-icon">
+
+  <!-- ✅ Google Site Verification (replace XXXXX with your code) -->
+  <meta name="google-site-verification" content="XXXXX">
+
+  <!-- ✅ Google AdSense Script -->
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
 </head>
 <body>
   <div class="container">
     <h1><span class="emoji">⚡</span> QuickSave 4K – YouTube & Reels Downloader</h1>
-   <p class="description">
-  Download YouTube Shorts, full playlists & Instagram Reels instantly – all FREE! ⚡ Save your favorite videos in MP4 or MP3 without limits, no login required, and enjoy ultra-fast downloads.
-</p>
+    <p class="description">
+      Download YouTube Shorts, full playlists & Instagram Reels instantly – all FREE! ⚡ Save your favorite videos in MP4 or MP3 without limits, no login required, and enjoy ultra-fast downloads.
+    </p>
 
-    
+    <!-- ✅ Top Ad Placeholder -->
+    <ins class="adsbygoogle"
+         style="display:block; text-align:center;"
+         data-ad-client="ca-pub-XXXXX"
+         data-ad-slot="YYYYYY"
+         data-ad-format="auto"></ins>
+    <script>
+         (adsbygoogle = window.adsbygoogle || []).push({});
+    </script>
+
     <form id="downloadForm">
       <input type="text" id="videoURL" name="url" placeholder="Enter YouTube/Instagram URL" required>
-
       <select name="type" id="fileType">
         <option value="mp4">Video (MP4)</option>
         <option value="mp3">Audio (MP3)</option>
       </select>
 
-      <!-- ✅ Quality Dropdown -->
       <select name="quality" id="quality">
         <option value="highest">2160p</option>
         <option value="360p">360p</option>
@@ -35,34 +48,39 @@
       <button type="submit">Download</button>
     </form>
 
-    <!-- ✅ Thumbnail Preview -->
     <div id="preview" style="margin-top:5px; display:none;">
       <h3 id="videoTitle"></h3>
       <img id="videoThumbnail" src="" alt="Thumbnail" style="max-width:80%; border-radius:10px; margin-top:5px;">
     </div>
 
-    <!-- ✅ Progress Bar -->
     <div id="progressContainer">
       <div id="progressBar"></div>
     </div>
 
-    <!-- ✅ Warning message -->
     <div id="warningMsg" style="color:white; font-weight:bold; margin-top:10px; display:none;"></div>
 
+    <!-- ✅ Bottom Ad Placeholder -->
+    <ins class="adsbygoogle"
+         style="display:block; text-align:center;"
+         data-ad-client="ca-pub-XXXXX"
+         data-ad-slot="ZZZZZZ"
+         data-ad-format="auto"></ins>
+    <script>
+         (adsbygoogle = window.adsbygoogle || []).push({});
+    </script>
 
-   <footer class="footer">
-  <p>
-    © 2025 <strong>QuickSave 4K</strong>. All rights reserved. <br>
-    Made With <span class="heart">❤️</span> by 
-    <a href="https://www.linkedin.com/in/shobhit78" target="_blank">Shobhit Kumar</a> 
-    | <a href="#">Share 🔗</a>
-    <br><br>
-    <a href="/privacy">Privacy Policy</a> | 
-    <a href="/terms">Terms & Conditions</a> |
-    <a href="/disclaimer">Disclaimer</a>
-  </p>
-</footer>
-
+    <footer class="footer">
+      <p>
+        © 2025 <strong>QuickSave 4K</strong>. All rights reserved. <br>
+        Made With <span class="heart">❤️</span> by 
+        <a href="https://www.linkedin.com/in/shobhit78" target="_blank">Shobhit Kumar</a> 
+        | <a href="#">Share 🔗</a>
+        <br><br>
+        <a href="/privacy">Privacy Policy</a> | 
+        <a href="/terms">Terms & Conditions</a> |
+        <a href="/disclaimer">Disclaimer</a>
+      </p>
+    </footer>
   </div>
 
   <script src="{{ url_for('static', filename='Script.js') }}"></script>
