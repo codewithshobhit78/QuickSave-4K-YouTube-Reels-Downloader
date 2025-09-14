@@ -183,6 +183,12 @@ def terms():
 def disclaimer():
     return render_template("disclaimer.html")
 
+# ✅ Ads.txt route
+@app.route('/ads.txt')
+def ads_txt():
+    return send_file("ads.txt")
+
+
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))  # Railway ke liye
     app.run(host="0.0.0.0", port=port)
