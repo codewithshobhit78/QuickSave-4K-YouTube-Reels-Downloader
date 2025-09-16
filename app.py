@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, jsonify, send_file
+from flask import Flask, render_template, request, jsonify, send_file, redirect
 import yt_dlp
 import os
 import uuid
@@ -189,30 +189,33 @@ def ads_txt():
     return send_file("ads.txt")
 
 
-# ✅ Link Shortener
-@app.route("/shorten")
-def shorten_page():
-    return render_template("shorten.html")
+# ✅ URL Shortener (very basic in-memory)
+short_urls = {}
 
-@app.route("/api/shorten", methods=["POST"])
-def shorten():
+@app.route('/api/shorten', methods=['POST'])
+def api_shorten():
     data = request.get_json()
     long_url = data.get("url")
+
     if not long_url:
         return jsonify({"error": "No URL provided"}), 400
 
+    # generate short id
     short_id = str(uuid.uuid4())[:6]
-    short_links[short_id] = long_url
-    short_url = request.host_url + "s/" + short_id
+    short_url = request.host_url + short_id
+
+    # save mapping
+    short_urls[short_id] = long_url
+
     return jsonify({"short_url": short_url})
 
-@app.route("/s/<short_id>")
+# ✅ Redirect short url
+@app.route('/<short_id>')
 def redirect_short(short_id):
-    long_url = short_links.get(short_id)
+    long_url = short_urls.get(short_id)
     if long_url:
         return redirect(long_url)
-    return "Invalid or expired link", 404
-
+    return "⚠️ Invalid or expired short link", 404
 
 
 if __name__ == "__main__":
