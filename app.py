@@ -4,12 +4,23 @@ import os
 import uuid
 import threading
 import clean_cookies   # ✅ new import
+import sqlite3   # ✅ new import
 
 app = Flask(__name__)
 DOWNLOAD_DIR = "downloads"
 
 if not os.path.exists(DOWNLOAD_DIR):
     os.makedirs(DOWNLOAD_DIR)
+
+# ✅ Initialize SQLite DB
+DB_PATH = "shortlinks.db"
+with sqlite3.connect(DB_PATH) as conn:
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS links (
+            id TEXT PRIMARY KEY,
+            long_url TEXT NOT NULL
+        )
+    """)
 
 # ✅ Global progress
 progress_data = {"progress": 0, "file": None, "status": "idle"}
@@ -189,32 +200,35 @@ def ads_txt():
     return send_file("ads.txt")
 
 
-# ✅ URL Shortener (very basic in-memory)
-short_urls = {}
+# ✅ Link Shortener API
+@app.route('/shorten')
+def shorten_page():
+    return render_template("shorten.html")
 
 @app.route('/api/shorten', methods=['POST'])
 def api_shorten():
     data = request.get_json()
     long_url = data.get("url")
-
     if not long_url:
         return jsonify({"error": "No URL provided"}), 400
 
-    # generate short id
     short_id = str(uuid.uuid4())[:6]
-    short_url = request.host_url + short_id
 
-    # save mapping
-    short_urls[short_id] = long_url
+    with sqlite3.connect(DB_PATH) as conn:
+        conn.execute("INSERT INTO links (id, long_url) VALUES (?, ?)", (short_id, long_url))
+        conn.commit()
 
+    short_url = request.host_url + "s/" + short_id
     return jsonify({"short_url": short_url})
 
-# ✅ Redirect short url
-@app.route('/<short_id>')
+@app.route('/s/<short_id>')
 def redirect_short(short_id):
-    long_url = short_urls.get(short_id)
-    if long_url:
-        return redirect(long_url)
+    with sqlite3.connect(DB_PATH) as conn:
+        cursor = conn.execute("SELECT long_url FROM links WHERE id = ?", (short_id,))
+        row = cursor.fetchone()
+
+    if row:
+        return redirect(row[0])
     return "⚠️ Invalid or expired short link", 404
 
 
