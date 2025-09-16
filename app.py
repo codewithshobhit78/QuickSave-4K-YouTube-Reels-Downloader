@@ -178,7 +178,7 @@ def thumbnail():
     except Exception as e:
         return jsonify({"error": str(e)}), 400
 
-
+# General pages for main app
 # ✅ Added Privacy Policy page
 @app.route("/privacy")
 def privacy():
@@ -193,6 +193,39 @@ def terms():
 @app.route("/disclaimer")
 def disclaimer():
     return render_template("disclaimer.html")
+
+# ✅ Added FAQ page
+@app.route('/faq')
+def faq():
+    return render_template('faq.html')
+
+# ✅ Added Guides page
+@app.route('/guides')
+def guides():
+    return render_template('guides.html')
+
+
+# Shortener static pages
+@app.route('/shorten/privacy')
+def shorten_privacy():
+    return render_template('shorten_privacy.html')
+
+@app.route('/shorten/terms')
+def shorten_terms():
+    return render_template('shorten_terms.html')
+
+@app.route('/shorten/disclaimer')
+def shorten_disclaimer():
+    return render_template('shorten_disclaimer.html')
+
+@app.route('/shorten/faq')
+def shorten_faq():
+    return render_template('shorten_faq.html')
+
+@app.route('/shorten/guides')
+def shorten_guides():
+    return render_template('shorten_guides.html')
+
 
 # ✅ Ads.txt route
 @app.route('/ads.txt')
