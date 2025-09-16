@@ -4,33 +4,48 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Link Shortener - QuickSave 4K</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <link rel="icon" href="/favicon.ico" type="image/x-icon">
+
+  <!-- ✅ Google AdSense Script -->
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7825587908571948"
+     crossorigin="anonymous"></script>
+
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #111;
-      color: #fff;
+    .shortener-container {
+      max-width: 600px;
+      margin: 40px auto;
+      padding: 20px;
+      background: #1a1a1a;
+      border-radius: 10px;
       text-align: center;
-      padding: 40px;
+      box-shadow: 0px 4px 10px rgba(0,0,0,0.5);
     }
-    h1 {
+    .shortener-container h1 {
       color: #ffcc00;
+      margin-bottom: 10px;
     }
-    input {
-      padding: 10px;
-      width: 70%;
+    .shortener-container p {
+      color: #bbb;
+      margin-bottom: 20px;
+    }
+    .shortener-container input {
+      padding: 12px;
+      width: 80%;
       border: none;
-      border-radius: 5px;
+      border-radius: 8px;
       margin: 10px 0;
     }
-    button {
-      padding: 10px 20px;
+    .shortener-container button {
+      padding: 12px 25px;
       background: #ffcc00;
       border: none;
-      border-radius: 5px;
+      border-radius: 8px;
       cursor: pointer;
       font-weight: bold;
+      transition: 0.3s;
     }
-    button:hover {
+    .shortener-container button:hover {
       background: #ffaa00;
     }
     #result {
@@ -38,21 +53,55 @@
       font-size: 1.1rem;
       color: #00ff99;
     }
-    a {
+    #result a {
       color: #00ff99;
       text-decoration: none;
     }
   </style>
 </head>
 <body>
-  <h1>🔗 QuickSave 4K - Link Shortener</h1>
-  <p>Enter your long URL below to shorten it instantly 🚀</p>
-  
-  <input type="text" id="longUrl" placeholder="Enter your URL here">
-  <br>
-  <button onclick="shortenLink()">Shorten</button>
+  <div class="container">
+    <h1><span class="emoji">⚡</span> QuickSave 4K – Link Shortener</h1>
 
-  <div id="result"></div>
+    <!-- ✅ Top Ad -->
+    <ins class="adsbygoogle"
+         style="display:block; text-align:center;"
+         data-ad-client="ca-pub-XXXXX"
+         data-ad-slot="YYYYYY"
+         data-ad-format="auto"></ins>
+    <script>
+         (adsbygoogle = window.adsbygoogle || []).push({});
+    </script>
+
+    <div class="shortener-container">
+      <h1>🔗 Link Shortener</h1>
+      <p>Enter your long URL below to shorten it instantly 🚀</p>
+      
+      <input type="text" id="longUrl" placeholder="Enter your URL here">
+      <br>
+      <button onclick="shortenLink()">Shorten</button>
+
+      <div id="result"></div>
+    </div>
+
+    <!-- ✅ Bottom Ad -->
+    <ins class="adsbygoogle"
+         style="display:block; text-align:center;"
+         data-ad-client="ca-pub-XXXXX"
+         data-ad-slot="ZZZZZZ"
+         data-ad-format="auto"></ins>
+    <script>
+         (adsbygoogle = window.adsbygoogle || []).push({});
+    </script>
+
+    <footer class="footer">
+      <p>
+        © 2025 <strong>QuickSave 4K</strong>. All rights reserved. <br>
+        Made With <span class="heart">❤️</span> by 
+        <a href="https://www.linkedin.com/in/shobhit78" target="_blank">Shobhit Kumar</a> 
+      </p>
+    </footer>
+  </div>
 
   <script>
     async function shortenLink() {
