@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Link Shortener - QuickSave 4K</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #111;
+      color: #fff;
+      text-align: center;
+      padding: 40px;
+    }
+    h1 {
+      color: #ffcc00;
+    }
+    input {
+      padding: 10px;
+      width: 70%;
+      border: none;
+      border-radius: 5px;
+      margin: 10px 0;
+    }
+    button {
+      padding: 10px 20px;
+      background: #ffcc00;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    button:hover {
+      background: #ffaa00;
+    }
+    #result {
+      margin-top: 20px;
+      font-size: 1.1rem;
+      color: #00ff99;
+    }
+    a {
+      color: #00ff99;
+      text-decoration: none;
+    }
+  </style>
+</head>
+<body>
+  <h1>🔗 QuickSave 4K - Link Shortener</h1>
+  <p>Enter your long URL below to shorten it instantly 🚀</p>
+  
+  <input type="text" id="longUrl" placeholder="Enter your URL here">
+  <br>
+  <button onclick="shortenLink()">Shorten</button>
+
+  <div id="result"></div>
+
+  <script>
+    async function shortenLink() {
+      const url = document.getElementById("longUrl").value;
+      if (!url) {
+        alert("⚠️ Please enter a valid URL");
+        return;
+      }
+
+      const response = await fetch("/api/shorten", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ url })
+      });
+
+      const data = await response.json();
+      if (data.short_url) {
+        document.getElementById("result").innerHTML = 
+          `✅ Short link: <a href="${data.short_url}" target="_blank">${data.short_url}</a>`;
+      } else {
+        document.getElementById("result").innerText = "⚠️ Error creating short link";
+      }
+    }
+  </script>
+</body>
+</html>

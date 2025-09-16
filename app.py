@@ -189,6 +189,32 @@ def ads_txt():
     return send_file("ads.txt")
 
 
+# ✅ Link Shortener
+@app.route("/shorten")
+def shorten_page():
+    return render_template("shorten.html")
+
+@app.route("/api/shorten", methods=["POST"])
+def shorten():
+    data = request.get_json()
+    long_url = data.get("url")
+    if not long_url:
+        return jsonify({"error": "No URL provided"}), 400
+
+    short_id = str(uuid.uuid4())[:6]
+    short_links[short_id] = long_url
+    short_url = request.host_url + "s/" + short_id
+    return jsonify({"short_url": short_url})
+
+@app.route("/s/<short_id>")
+def redirect_short(short_id):
+    long_url = short_links.get(short_id)
+    if long_url:
+        return redirect(long_url)
+    return "Invalid or expired link", 404
+
+
+
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))  # Railway ke liye
     app.run(host="0.0.0.0", port=port)
