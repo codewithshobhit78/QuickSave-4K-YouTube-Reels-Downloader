@@ -231,6 +231,10 @@ def shorten_guides():
 def blog_home():
     return render_template("blog.html")
 
+@app.route('/shorten/blog')
+def shorten_blog():
+    return render_template('shorten_blog.html')
+
 @app.route('/blog/how-to-download-youtube-shorts-2025')
 def blog_shorts():
     return render_template("blog_shorts.html")
