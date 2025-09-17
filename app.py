@@ -226,11 +226,22 @@ def shorten_faq():
 def shorten_guides():
     return render_template('shorten_guides.html')
 
+# Blog routes
+@app.route('/blog')
+def blog_home():
+    return render_template("blog.html")
 
-# ✅ Ads.txt route
-@app.route('/ads.txt')
-def ads_txt():
-    return send_file("ads.txt")
+@app.route('/blog/how-to-download-youtube-shorts-2025')
+def blog_shorts():
+    return render_template("blog_shorts.html")
+
+@app.route('/blog/best-free-youtube-to-mp3-tools')
+def blog_mp3():
+    return render_template("blog_mp3.html")
+
+@app.route('/blog/why-use-link-shortener')
+def blog_shortener():
+    return render_template("blog_shortener.html")
 
 
 # ✅ Link Shortener API
@@ -264,6 +275,11 @@ def redirect_short(short_id):
         return redirect(row[0])
     return "⚠️ Invalid or expired short link", 404
 
+
+# ✅ Ads.txt route
+@app.route('/ads.txt')
+def ads_txt():
+    return send_file("ads.txt")
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5001))  # Railway ke liye (default 5001)
