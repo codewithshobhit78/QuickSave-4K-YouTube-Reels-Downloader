@@ -19,7 +19,8 @@ dist/
 
 cookies.txt
 
-
+# Ignore SQLite database
+shortlinks.db
 
 # @app.route('/thumbnail', methods=['POST'])
 # def thumbnail():
@@ -29,4 +30,4 @@ cookies.txt
 #             info = ydl.extract_info(url, download=False)
 #             return jsonify({"thumbnail": info.get("thumbnail", ""), "title": info.get("title", "Video")})
 #     except Exception as e:
-#         return jsonify({"error": str(e)}), 400 
+#         return jsonify({"error": str(e)}), 400 shortlinks.db
